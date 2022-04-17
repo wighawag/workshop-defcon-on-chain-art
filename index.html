@@ -1,0 +1,81 @@
+<html>
+  <head>
+    <title>Inspect NFT</title>
+  </head>
+  <body>
+    <img id="nft-image" />
+    <script>
+      function hex_to_ascii(str1) {
+        var hex = str1.toString();
+        var str = '';
+        for (var n = 0; n < hex.length; n += 2) {
+          str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+        }
+        return str;
+      }
+
+      const img = document.getElementById('nft-image');
+      function refresh() {
+        const hashStr = location.hash && location.hash.slice(1);
+        if (hashStr) {
+          const splitted = hashStr.split('_');
+          const contractAddress = splitted[0];
+          const tokenID = splitted[1];
+          console.log({tokenID, contractAddress});
+
+          const tokenIDAsHex = tokenID.startsWith('0x') ? tokenID.slice(2) : parseInt(tokenID).toString(16);
+          const data = '0xc87b56dd' + tokenIDAsHex.padStart(64, '0');
+          console.log({data});
+          fetch('http://localhost:8545', {
+            method: 'POST',
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: 1,
+              method: 'eth_call',
+              params: [
+                {
+                  data,
+                  to: contractAddress,
+                },
+                'latest',
+              ],
+            }),
+          })
+            .then((response) => response.json())
+            .then((json) => {
+              if (json.error) {
+                console.error(json.error);
+                throw json.error;
+              }
+              return json;
+            })
+            .then((json) => json.result)
+            .then((hex) => hex.slice(2))
+            .then((hex) => hex.slice(64))
+            .then((hex) => {
+              const len = hex.slice(0, 64);
+              const size = parseInt(len, 16);
+              return hex.slice(64, 64 + size * 2);
+            })
+            .then((hex) => hex_to_ascii(hex))
+            .then((tokenURI) => fetch(tokenURI))
+            .then((response) => response.json())
+            .then((json) => json.image)
+            // .then((data) => {
+            //   console.log(data);
+            //   return data;
+            // })
+            .then((imgURI) => {
+              img.src = imgURI;
+            });
+        }
+      }
+      let timeout;
+      function refreshAgainAndAgain() {
+        refresh();
+        timeout = setTimeout(refreshAgainAndAgain, 1000);
+      }
+      refreshAgainAndAgain();
+    </script>
+  </body>
+</html>

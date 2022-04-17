@@ -6,6 +6,12 @@
 yarn
 ```
 
+## WORKSHOP
+
+`yarn dev`
+
+go to [page](./index.html)
+
 ## TEST
 
 There are 3 flavors of tests: hardhat, dapptools and forge
