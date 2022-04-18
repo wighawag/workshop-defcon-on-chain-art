@@ -26,6 +26,7 @@
           const tokenIDAsHex = tokenID.startsWith('0x') ? tokenID.slice(2) : parseInt(tokenID).toString(16);
           const data = '0xc87b56dd' + tokenIDAsHex.padStart(64, '0');
           console.log({data});
+          let tokenURIResponse;
           fetch('http://localhost:8545', {
             method: 'POST',
             body: JSON.stringify({
@@ -58,8 +59,17 @@
               return hex.slice(64, 64 + size * 2);
             })
             .then((hex) => hex_to_ascii(hex))
-            .then((tokenURI) => fetch(tokenURI))
-            .then((response) => response.json())
+            .then((tokenURI) => {
+              console.log({tokenURI});
+              return fetch(tokenURI);
+            })
+            .then(async (response) => {
+              tokenURIResponse = response.clone();
+              console.log({
+                metadata: await response.clone().text(),
+              });
+              return response.json();
+            })
             .then((json) => json.image)
             // .then((data) => {
             //   console.log(data);
@@ -67,6 +77,12 @@
             // })
             .then((imgURI) => {
               img.src = imgURI;
+            })
+            .catch(async (e) => {
+              console.error('ERROR', e);
+              console.log({
+                tokenURIRAW: await tokenURIResponse.text(),
+              });
             });
         }
       }

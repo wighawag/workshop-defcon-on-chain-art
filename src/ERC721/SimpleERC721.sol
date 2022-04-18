@@ -2,6 +2,7 @@
 pragma solidity 0.8.9;
 
 import "./ERC721Base.sol";
+import "base64-sol/base64.sol";
 
 contract SimpleERC721 is ERC721Base {
     uint256 _lastId;
@@ -31,19 +32,59 @@ contract SimpleERC721 is ERC721Base {
         }
     }
 
+    // function tokenURI(uint256 tokenId) external pure returns (string memory) {
+    //     string memory tokenIdStr = uint2str(tokenId);
+    //     return
+    //         string(
+    //             abi.encodePacked(
+    //                 // solhint-disable quotes
+    //                 'data:text/plain,{"name":"Token ',
+    //                 tokenIdStr,
+    //                 '","description":"Token ',
+    //                 tokenIdStr,
+    //                 "\",\"image\":\"data:image/svg+xml,<svg viewBox='0 0 32 16' xmlns='http://www.w3.org/2000/svg'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' style='fill: rgb(219, 39, 119); font-size: 12px;'> Hello ",
+    //                 tokenIdStr,
+    //                 '</text></svg>"}'
+    //             )
+    //         );
+    // }
+
+    // function tokenURI(uint256 tokenId) external pure returns (string memory) {
+    //     string memory tokenIdStr = uint2str(tokenId);
+    //     return
+    //         string(
+    //             abi.encodePacked(
+    //                 // solhint-disable quotes
+    //                 'data:application/json,{"name":"Token%20',
+    //                 tokenIdStr,
+    //                 '","description":"%20Token%20',
+    //                 tokenIdStr,
+    //                 "\",\"image\":\"data:image/svg+xml,<svg%20viewBox='0%200%2032%2016'%20xmlns='http://www.w3.org/2000/svg'><text%20x='50%'%20y='50%'%20dominant-baseline='middle'%20text-anchor='middle'%20style='fill:%20rgb(219, 39, 119);%20font-size:%2012px;'>%20Hello%20",
+    //                 tokenIdStr,
+    //                 '</text></svg>"}'
+    //             )
+    //         );
+    // }
+
     function tokenURI(uint256 tokenId) external pure returns (string memory) {
         string memory tokenIdStr = uint2str(tokenId);
         return
             string(
                 abi.encodePacked(
                     // solhint-disable quotes
-                    'data:text/plain,{"name":"Token ',
+                    'data:application/json,{"name":"Token%20',
                     tokenIdStr,
-                    '","description":"Token ',
+                    '","description":"%20Token%20',
                     tokenIdStr,
-                    "\",\"image\":\"data:image/svg+xml,<svg viewBox='0 0 32 16' xmlns='http://www.w3.org/2000/svg'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' style='fill: rgb(219, 39, 119); font-size: 12px;'> Hello ",
-                    tokenIdStr,
-                    '</text></svg>"}'
+                    '","image":"data:image/svg+xml;base64,',
+                    Base64.encode(
+                        abi.encodePacked(
+                            "<svg viewBox='0 0 32 16' xmlns='http://www.w3.org/2000/svg'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' style='fill: rgb(219, 39, 119); font-size: 12px;'> Hello ",
+                            tokenIdStr,
+                            "</text></svg>"
+                        )
+                    ),
+                    '"}'
                 )
             );
     }
